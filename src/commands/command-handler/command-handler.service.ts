@@ -4,21 +4,16 @@ import { purge } from './purge';
 @Injectable()
 export class CommandHandlerService {
   handleCommand(message) {
-    message.content = message.content.toLocaleLowerCase();
-    const commandArray = message.content.match(/\s?[a-z]+/);
-    if (!commandArray) return;
-    const command = commandArray[0].trim();
+    const content = message.content;
+    content.toLocaleLowerCase();
+    const command = message.content.match(/\s?[a-z]+/)[0].trim();
     let params = message.content.split(/([^\s"]+|"[^"]*")+/);
-    params.shift();
     params = params.filter((item) => {
-      return item.replace(/\s+/, '') != '';
+      return item.replace(/\s+/, '') != '' && item != command; //remove spaces and command
     });
-    if (!commandArray) {
-      return;
-    }
     if (params) {
       params = params.map((param) => {
-        return param.replace(/"/g, '');
+        return param.replace(/"/g, ''); // remove quotes that can be used to pass string with spaces as a param
       });
     }
     if (!this.commands[command]) {
@@ -36,7 +31,7 @@ export class CommandHandlerService {
     //setupbarka: (message) => {schedule.scheduleJob({hour: 20, minute: 37}, () => {this.commands[play](message, 'barka')});console.log("setupdone"); message.delete();},
     //plan: (message) =>{plan(message, params)},
     purge: async (message, params) => {
-      purge(message, params[1]);
+      purge(message, params[0]);
     },
     syllabus: (message) => {
       message.reply('https://sylabusy.agh.edu.pl/pl/1/1/16/1/1/38/50');
