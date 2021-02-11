@@ -1,17 +1,15 @@
 import { Injectable } from '@nestjs/common';
+import { purge } from './purge';
 
 @Injectable()
 export class CommandHandlerService {
-  constructor() {
-    console.log('test');
-  }
-
   handleCommand(message) {
     message.content = message.content.toLocaleLowerCase();
     const commandArray = message.content.match(/\s?[a-z]+/);
     if (!commandArray) return;
     const command = commandArray[0].trim();
     let params = message.content.split(/([^\s"]+|"[^"]*")+/);
+    params.shift();
     params = params.filter((item) => {
       return item.replace(/\s+/, '') != '';
     });
@@ -27,7 +25,7 @@ export class CommandHandlerService {
       message.reply('unknown command');
       return;
     }
-    this.commands[command](message);
+    this.commands[command](message, params);
   }
 
   commands = {
@@ -37,7 +35,9 @@ export class CommandHandlerService {
     //skip: (message) => {skip(message)},
     //setupbarka: (message) => {schedule.scheduleJob({hour: 20, minute: 37}, () => {this.commands[play](message, 'barka')});console.log("setupdone"); message.delete();},
     //plan: (message) =>{plan(message, params)},
-    //purge: async (message) =>{purge(message, params[0])},
+    purge: async (message, params) => {
+      purge(message, params[1]);
+    },
     syllabus: (message) => {
       message.reply('https://sylabusy.agh.edu.pl/pl/1/1/16/1/1/38/50');
     },
